@@ -26,7 +26,7 @@ namespace INO_CRM_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<MyDbContext>(opt => opt.UseSqlServer(Configuration["Data:INO_CRM_APIConnection:ConnectionString"]));
+            services.AddDbContext<MyDbContext>(opt => opt.UseLazyLoadingProxies().UseSqlServer(Configuration["Data:INO_CRM_APIConnection:ConnectionString"]));
             services.AddControllers();
         }
 
