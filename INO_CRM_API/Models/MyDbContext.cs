@@ -17,6 +17,13 @@ namespace INO_CRM_API.Models
 
         }
 
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<UserModel>()
+                .HasIndex(u => u.Login)
+                .IsUnique();
+        }
+
         public DbSet<BranchModel> Branches { get; set; }
         public DbSet<CompanyModel> Companies { get; set; }
         public DbSet<ContactPersonModel> ContactPeople { get; set; }

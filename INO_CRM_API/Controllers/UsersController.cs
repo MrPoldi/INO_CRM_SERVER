@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using INO_CRM_API.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace INO_CRM_API.Controllers
 {
@@ -28,6 +30,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Users/5
+        [Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserModel>> GetUserModel(int id)
         {
@@ -46,8 +49,7 @@ namespace INO_CRM_API.Controllers
         [HttpGet("{id}/roles")]
         public async Task<ActionResult<RoleModel>> GetUserRole(int id)
         {
-            //RoleModel userRole = _context.Roles.Find(_context.Users.Find(id).RoleId);
-            //RoleModel userRole = _context.Users.Include(u => u.Role).Select
+            //RoleModel userRole = _context.Roles.Find(_context.Users.Find(id).RoleId);            
             var userModel = await _context.Users.FindAsync(id);
             if (userModel == null)
             {
@@ -89,6 +91,8 @@ namespace INO_CRM_API.Controllers
             return NoContent();
         }
 
+
+
         // POST: api/Users
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
@@ -102,6 +106,8 @@ namespace INO_CRM_API.Controllers
 
             return CreatedAtAction("GetUserModel", new { id = userModel.UserId }, userModel);
         }
+
+        
 
         // DELETE: api/Users/5
         [HttpDelete("{id}")]
