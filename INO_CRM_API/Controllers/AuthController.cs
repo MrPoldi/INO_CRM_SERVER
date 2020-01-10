@@ -45,7 +45,7 @@ namespace INO_CRM_API.Controllers
             //Create token
             JwtSecurityToken token = new JwtSecurityToken(
                 issuer: "INO",
-                audience: "Client",
+                audience: user.Login.ToString(),
                 expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: signingCredentials,
                 claims: claims

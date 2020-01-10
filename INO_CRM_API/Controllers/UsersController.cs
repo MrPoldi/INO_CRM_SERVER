@@ -30,7 +30,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Users/5
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserModel>> GetUserModel(int id)
         {
@@ -100,7 +100,9 @@ namespace INO_CRM_API.Controllers
         public async Task<ActionResult<UserModel>> PostUserModel(UserModel userModel)
         {
             //userModel.Role = _context.Roles.Find(userModel.RoleId);
-            _context.Users.Add(userModel);
+            userModel.IsDeleted = false;
+            userModel.RoleId = 2; //Set role to user
+            _context.Users.Add(userModel);            
             //_context.Users.Find(userModel).Role = _context.Roles.Find(userModel.RoleId);
             await _context.SaveChangesAsync();
 
@@ -118,8 +120,8 @@ namespace INO_CRM_API.Controllers
             {
                 return NotFound();
             }
-
-            _context.Users.Remove(userModel);
+            _context.Users.FindAsync(id).Result.IsDeleted = true;
+            
             await _context.SaveChangesAsync();
 
             return userModel;
