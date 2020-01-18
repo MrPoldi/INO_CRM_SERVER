@@ -30,7 +30,7 @@ namespace INO_CRM_API.Controllers
             UserModel user = _context.Users.Where(u => u.Login == body.Login).Single();
             if (user.Password != body.Password)
             {
-                return body.Login + " " + body.Password;
+                return Unauthorized();
             }
 
             //Security keys

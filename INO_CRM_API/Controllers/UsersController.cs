@@ -29,6 +29,24 @@ namespace INO_CRM_API.Controllers
             return await _context.Users.ToListAsync();
         }
 
+        // GET: api/Users/Page/5
+        [HttpGet("Page/{id}")]
+        public async Task<ActionResult<IEnumerable<UserModel>>> GetUsersPage(int id)
+        {
+            List<UserModel> users = await _context.Users.ToListAsync();
+
+            int count = users.Count;
+            int pageSize = 10;
+            int pageStart = (id - 1) * 10;
+
+            if (pageStart + pageSize > count)
+            {
+                pageSize = count - pageStart;
+            }
+
+            return users.GetRange(pageStart, pageSize);
+        }
+
         // GET: api/Users/5
         //[Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
