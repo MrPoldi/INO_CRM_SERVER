@@ -47,6 +47,17 @@ namespace INO_CRM_API.Controllers
             return users.GetRange(pageStart, pageSize);
         }
 
+        // GET: api/Users/Pages
+        [HttpGet("Pages")]
+        public async Task<ActionResult<int>> GetUsersPages()
+        {
+            int count = await _context.Users.CountAsync();
+            int pages = (count / 10) + 1;
+
+
+            return pages;
+        }
+
         // GET: api/Users/5
         //[Authorize(Roles = "Admin")]
         [HttpGet("{id}")]
