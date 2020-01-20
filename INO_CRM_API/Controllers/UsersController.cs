@@ -35,7 +35,7 @@ namespace INO_CRM_API.Controllers
         [HttpGet("Page/{id}")]
         public async Task<ActionResult<IEnumerable<UserModel>>> GetUsersPage(int id)
         {
-            List<UserModel> users = await _context.Users.ToListAsync();
+            List<UserModel> users = await _context.Users.ToListAsync();            
 
             int count = users.Count;
             int pageSize = 10;
@@ -129,7 +129,7 @@ namespace INO_CRM_API.Controllers
         // POST: api/Users
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        [Authorize(Roles = "Admin,Moderator,User")]
+        [AllowAnonymous]
         [HttpPost]
         public async Task<ActionResult<UserModel>> PostUserModel(UserModel userModel)
         {

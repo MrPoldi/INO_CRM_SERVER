@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using INO_CRM_API.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace INO_CRM_API.Controllers
 {
@@ -21,6 +22,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Companies
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CompanyModel>>> GetCompanies()
         {
@@ -28,6 +30,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Companies/5
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("{id}")]
         public async Task<ActionResult<CompanyModel>> GetCompanyModel(int id)
         {
@@ -41,9 +44,41 @@ namespace INO_CRM_API.Controllers
             return companyModel;
         }
 
+        // GET: api/Companies/Page/5
+        [Authorize(Roles = "Admin,Moderator,User")]
+        [HttpGet("Page/{id}")]
+        public async Task<ActionResult<IEnumerable<CompanyModel>>> GetCompaniesPage(int id)
+        {
+            List<CompanyModel> companies = await _context.Companies.ToListAsync();
+
+            int count = companies.Count;
+            int pageSize = 10;
+            int pageStart = (id - 1) * 10;
+
+            if (pageStart + pageSize > count)
+            {
+                pageSize = count - pageStart;
+            }
+
+            return companies.GetRange(pageStart, pageSize);
+        }
+
+        // GET: api/Companies/Pages
+        [Authorize(Roles = "Admin,Moderator,User")]
+        [HttpGet("Pages")]
+        public async Task<ActionResult<int>> GetCompaniesPages()
+        {
+            int count = await _context.Companies.CountAsync();
+            int pages = (count / 10) + 1;
+
+
+            return pages;
+        }
+
         // PUT: api/Companies/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutCompanyModel(int id, CompanyModel companyModel)
         {
@@ -51,6 +86,9 @@ namespace INO_CRM_API.Controllers
             {
                 return BadRequest();
             }
+            companyModel.BranchId = _context.Branches.Where(b => b.Name == companyModel.Branch.Name).Single().BranchId;
+            companyModel.Branch = null;            
+            companyModel.UserId = _context.Companies.AsNoTracking().Where(c => c.CompanyId == companyModel.CompanyId).Single().UserId;
 
             _context.Entry(companyModel).State = EntityState.Modified;
 
@@ -76,9 +114,15 @@ namespace INO_CRM_API.Controllers
         // POST: api/Companies
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPost]
         public async Task<ActionResult<CompanyModel>> PostCompanyModel(CompanyModel companyModel)
         {
+            companyModel.IsDeleted = false;
+            companyModel.BranchId = _context.Branches.Where(b => b.Name == companyModel.Branch.Name).Single().BranchId;
+            companyModel.UserId = _context.Users.Where(u => u.Login == companyModel.User.Login).Single().UserId;
+            companyModel.User = null;
+            companyModel.Branch = null;
             _context.Companies.Add(companyModel);
             await _context.SaveChangesAsync();
 
@@ -86,6 +130,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // DELETE: api/Companies/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<CompanyModel>> DeleteCompanyModel(int id)
         {
@@ -95,7 +140,7 @@ namespace INO_CRM_API.Controllers
                 return NotFound();
             }
 
-            _context.Companies.Remove(companyModel);
+            _context.Companies.FindAsync(id).Result.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return companyModel;

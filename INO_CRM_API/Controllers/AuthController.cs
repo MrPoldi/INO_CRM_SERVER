@@ -27,7 +27,16 @@ namespace INO_CRM_API.Controllers
         [HttpPost("token")]
         public ActionResult<string> GetToken(UserModel body)
         {
-            UserModel user = _context.Users.Where(u => u.Login == body.Login).Single();
+            UserModel user;
+            try
+            {
+                user = _context.Users.Where(u => u.Login == body.Login).Single();
+            }
+            catch
+            {
+                return Unauthorized();
+            }
+            
             if (user.Password != body.Password)
             {
                 return Unauthorized();
