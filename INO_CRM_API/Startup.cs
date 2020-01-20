@@ -41,11 +41,11 @@ namespace INO_CRM_API
                     {
                         //What is being validated
                         ValidateIssuer = true,
-                        ValidateAudience = true,
+                        ValidateAudience = false,
                         ValidateIssuerSigningKey = true,
                         //What is valid
                         ValidIssuer = "INO",
-                        ValidAudience = "Client",
+                        //ValidAudience = "Client",
                         IssuerSigningKey = symmetricKey
                     };
                 });

@@ -23,6 +23,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Users
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserModel>>> GetUsers()
         {
@@ -30,6 +31,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Users/Page/5
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("Page/{id}")]
         public async Task<ActionResult<IEnumerable<UserModel>>> GetUsersPage(int id)
         {
@@ -48,6 +50,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Users/Pages
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("Pages")]
         public async Task<ActionResult<int>> GetUsersPages()
         {
@@ -59,7 +62,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Users/5
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("{id}")]
         public async Task<ActionResult<UserModel>> GetUserModel(int id)
         {
@@ -74,7 +77,7 @@ namespace INO_CRM_API.Controllers
         }
 
 
-        // GET: api/Users/5
+        // GET: api/Users/5/roles
         [HttpGet("{id}/roles")]
         public async Task<ActionResult<RoleModel>> GetUserRole(int id)
         {
@@ -91,6 +94,7 @@ namespace INO_CRM_API.Controllers
         // PUT: api/Users/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutUserModel(int id, UserModel userModel)
         {
@@ -125,6 +129,7 @@ namespace INO_CRM_API.Controllers
         // POST: api/Users
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpPost]
         public async Task<ActionResult<UserModel>> PostUserModel(UserModel userModel)
         {
@@ -138,9 +143,10 @@ namespace INO_CRM_API.Controllers
             return CreatedAtAction("GetUserModel", new { id = userModel.UserId }, userModel);
         }
 
-        
+
 
         // DELETE: api/Users/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<UserModel>> DeleteUserModel(int id)
         {
