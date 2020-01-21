@@ -27,6 +27,13 @@ namespace INO_CRM_API.Controllers
             return await _context.ContactPeople.ToListAsync();
         }
 
+        // GET: api/Contacts/Company/5
+        [HttpGet("Company/{id}")]
+        public async Task<ActionResult<IEnumerable<ContactPersonModel>>> GetContactPeopleForCompany(int id)
+        {
+            return await _context.ContactPeople.Where(c => c.CompanyId == id).ToListAsync();
+        }
+
         // GET: api/Contacts/5
         [HttpGet("{id}")]
         public async Task<ActionResult<ContactPersonModel>> GetContactPersonModel(int id)
@@ -45,14 +52,18 @@ namespace INO_CRM_API.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutContactPersonModel(int id, ContactPersonModel contactPersonModel)
+        public async Task<IActionResult> PutContactPersonModel(int id, ContactPersonModel contact)
         {
-            if (id != contactPersonModel.ContactId)
+            if (id != contact.ContactId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(contactPersonModel).State = EntityState.Modified;
+            contact.CompanyId = _context.Companies.Where(c => c.Name == contact.Company.Name).Single().CompanyId;
+            contact.Company = null;
+            contact.UserId = _context.ContactPeople.AsNoTracking().Where(c => c.ContactId == contact.ContactId).Single().UserId;
+            
+            _context.Entry(contact).State = EntityState.Modified;
 
             try
             {
@@ -77,12 +88,16 @@ namespace INO_CRM_API.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        public async Task<ActionResult<ContactPersonModel>> PostContactPersonModel(ContactPersonModel contactPersonModel)
+        public async Task<ActionResult<ContactPersonModel>> PostContactPersonModel(ContactPersonModel contact)
         {
-            _context.ContactPeople.Add(contactPersonModel);
+            contact.IsDeleted = false;
+            contact.UserId = _context.Users.Where(u => u.Login == contact.User.Login).Single().UserId;
+            contact.User = null;
+
+            _context.ContactPeople.Add(contact);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetContactPersonModel", new { id = contactPersonModel.ContactId }, contactPersonModel);
+            return CreatedAtAction("GetContactPersonModel", new { id = contact.ContactId }, contact);
         }
 
         // DELETE: api/Contacts/5
@@ -95,7 +110,7 @@ namespace INO_CRM_API.Controllers
                 return NotFound();
             }
 
-            _context.ContactPeople.Remove(contactPersonModel);
+            _context.ContactPeople.FindAsync(id).Result.IsDeleted = true;
             await _context.SaveChangesAsync();
 
             return contactPersonModel;

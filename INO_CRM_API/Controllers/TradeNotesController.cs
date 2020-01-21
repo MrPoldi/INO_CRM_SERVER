@@ -93,10 +93,8 @@ namespace INO_CRM_API.Controllers
         public async Task<ActionResult<TradeNoteModel>> PostTradeNoteModel(TradeNoteModel tradeNoteModel)
         {
             tradeNoteModel.IsDeleted = false;
-            tradeNoteModel.UserId = _context.Users.Where(u => u.Login == tradeNoteModel.User.Login).Single().UserId;
-            //tradeNoteModel.CompanyId = _context.Companies.Where(c => c.Name == tradeNoteModel.Company.Name).Single().CompanyId;
-            tradeNoteModel.User = null;
-            //tradeNoteModel.Company = null;
+            tradeNoteModel.UserId = _context.Users.Where(u => u.Login == tradeNoteModel.User.Login).Single().UserId;            
+            tradeNoteModel.User = null;            
 
             _context.TradeNotes.Add(tradeNoteModel);
             await _context.SaveChangesAsync();
