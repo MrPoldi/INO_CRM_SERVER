@@ -103,6 +103,16 @@ namespace INO_CRM_API.Controllers
                 return BadRequest();
             }
 
+            if(userModel.Role != null)
+            {
+                userModel.RoleId = _context.Roles.Where(r => r.Name == userModel.Role.Name).Single().RoleId;
+                userModel.Role = null;
+            }
+            else
+            {
+                userModel.RoleId = _context.Users.AsNoTracking().Where(u => u.UserId == userModel.UserId).Single().RoleId;
+            }
+
             _context.Entry(userModel).State = EntityState.Modified;
 
             try
