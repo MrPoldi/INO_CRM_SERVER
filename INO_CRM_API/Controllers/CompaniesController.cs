@@ -86,6 +86,13 @@ namespace INO_CRM_API.Controllers
             {
                 return BadRequest();
             }
+
+            if (!BranchExists(companyModel.Branch.Name))
+            {
+                _context.Branches.Add(companyModel.Branch);
+                await _context.SaveChangesAsync();
+            }
+
             companyModel.BranchId = _context.Branches.Where(b => b.Name == companyModel.Branch.Name).Single().BranchId;
             companyModel.Branch = null;            
             companyModel.UserId = _context.Companies.AsNoTracking().Where(c => c.CompanyId == companyModel.CompanyId).Single().UserId;
@@ -119,6 +126,13 @@ namespace INO_CRM_API.Controllers
         public async Task<ActionResult<CompanyModel>> PostCompanyModel(CompanyModel companyModel)
         {
             companyModel.IsDeleted = false;
+
+            if (!BranchExists(companyModel.Branch.Name))
+            {                
+                _context.Branches.Add(companyModel.Branch);
+                await _context.SaveChangesAsync();
+            }            
+
             companyModel.BranchId = _context.Branches.Where(b => b.Name == companyModel.Branch.Name).Single().BranchId;
             companyModel.UserId = _context.Users.Where(u => u.Login == companyModel.User.Login).Single().UserId;
             companyModel.User = null;
@@ -150,5 +164,10 @@ namespace INO_CRM_API.Controllers
         {
             return _context.Companies.Any(e => e.CompanyId == id);
         }
+
+        private bool BranchExists(string name)
+        {
+            return _context.Branches.Any(b => b.Name == name);
+        }        
     }
 }
