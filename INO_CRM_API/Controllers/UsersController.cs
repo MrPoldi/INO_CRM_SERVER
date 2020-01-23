@@ -33,9 +33,17 @@ namespace INO_CRM_API.Controllers
         // GET: api/Users/Page/5
         [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("Page/{id}")]
-        public async Task<ActionResult<IEnumerable<UserModel>>> GetUsersPage(int id)
+        public async Task<ActionResult<IEnumerable<UserModel>>> GetUsersPage(int id,[FromQuery] string searchName)
         {
-            List<UserModel> users = await _context.Users.ToListAsync();            
+            List<UserModel> users;
+            if (searchName == null)
+            {
+                users = await _context.Users.ToListAsync();
+            }
+            else
+            {
+                users = await _context.Users.Where(u => u.LastName.ToLower().StartsWith(searchName.ToLower().Trim())).ToListAsync();
+            }                     
 
             int count = users.Count;
             int pageSize = 10;
@@ -75,6 +83,7 @@ namespace INO_CRM_API.Controllers
 
             return userModel;
         }
+
 
 
         // GET: api/Users/5/roles
