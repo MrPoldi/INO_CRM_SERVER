@@ -31,7 +31,9 @@ namespace INO_CRM_API.Controllers
         [HttpGet("Company/{id}")]
         public async Task<ActionResult<IEnumerable<ContactPersonModel>>> GetContactPeopleForCompany(int id, [FromQuery] string searchName)
         {
-            return await _context.ContactPeople.Where(c => c.CompanyId == id && (searchName != null ? c.LastName.StartsWith(searchName) : true)).ToListAsync();
+            return await _context.ContactPeople.Where(c => c.CompanyId == id 
+                                                      && (searchName != null ? c.LastName.StartsWith(searchName) : true))
+                                                      .ToListAsync();
         }
 
         // GET: api/Contacts/5

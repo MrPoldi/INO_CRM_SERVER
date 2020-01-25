@@ -47,13 +47,21 @@ namespace INO_CRM_API.Controllers
         // GET: api/Companies/Page/5
         [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("Page/{id}")]
-        public async Task<ActionResult<IEnumerable<CompanyModel>>> GetCompaniesPage(int id)
+        public async Task<ActionResult<IEnumerable<CompanyModel>>> GetCompaniesPage(int id, [FromQuery] string searchBranch)
         {
-            List<CompanyModel> companies = await _context.Companies.ToListAsync();
+            List<CompanyModel> companies;
+            if(searchBranch == null)
+            {
+                companies = await _context.Companies.ToListAsync();
+            }
+            else
+            {
+                companies = await _context.Companies.Where(c => c.Branch.Name.StartsWith(searchBranch)).ToListAsync();
+            }
 
             int count = companies.Count;
-            int pageSize = 10;
-            int pageStart = (id - 1) * 10;
+            int pageSize = 5;
+            int pageStart = (id - 1) * pageSize;
 
             if (pageStart + pageSize > count)
             {
@@ -66,10 +74,21 @@ namespace INO_CRM_API.Controllers
         // GET: api/Companies/Pages
         [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("Pages")]
-        public async Task<ActionResult<int>> GetCompaniesPages()
+        public async Task<ActionResult<int>> GetCompaniesPages([FromQuery] string searchBranch)
         {
-            int count = await _context.Companies.CountAsync();
-            int pages = (count / 10) + 1;
+            int pageSize = 5;
+            int count;
+            if (searchBranch == null)
+            {
+                count = await _context.Companies.CountAsync();
+            }
+            else
+            {
+                count = await _context.Companies.Where(c => c.Branch.Name.StartsWith(searchBranch)).CountAsync();
+            }
+            
+
+            int pages = (count / pageSize) + 1;
 
 
             return pages;
