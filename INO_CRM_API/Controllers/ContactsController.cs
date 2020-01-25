@@ -29,9 +29,9 @@ namespace INO_CRM_API.Controllers
 
         // GET: api/Contacts/Company/5
         [HttpGet("Company/{id}")]
-        public async Task<ActionResult<IEnumerable<ContactPersonModel>>> GetContactPeopleForCompany(int id)
+        public async Task<ActionResult<IEnumerable<ContactPersonModel>>> GetContactPeopleForCompany(int id, [FromQuery] string searchName)
         {
-            return await _context.ContactPeople.Where(c => c.CompanyId == id).ToListAsync();
+            return await _context.ContactPeople.Where(c => c.CompanyId == id && (searchName != null ? c.LastName.StartsWith(searchName) : true)).ToListAsync();
         }
 
         // GET: api/Contacts/5
