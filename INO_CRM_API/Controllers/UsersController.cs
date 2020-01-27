@@ -33,21 +33,26 @@ namespace INO_CRM_API.Controllers
         // GET: api/Users/Page/5
         [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("Page/{id}")]
-        public async Task<ActionResult<IEnumerable<UserModel>>> GetUsersPage(int id,[FromQuery] string searchName)
+        public async Task<ActionResult<IEnumerable<UserModel>>> GetUsersPage(int id, [FromQuery] string sMinDate, [FromQuery] string sMaxDate)
         {
             List<UserModel> users;
-            if (searchName == null)
+            DateTime minDate = DateTime.Parse(sMinDate);
+            DateTime maxDate = DateTime.Parse(sMaxDate);
+            if (minDate == null && maxDate == null)
             {
                 users = await _context.Users.ToListAsync();
             }
             else
             {
-                users = await _context.Users.Where(u => u.LastName.ToLower().StartsWith(searchName.ToLower().Trim())).ToListAsync();
+                if (maxDate == null) maxDate = DateTime.Today;
+                if (minDate == null) minDate = DateTime.Parse("01-01-1900");
+                users = await _context.Users
+                    .Where(u => u.dateOfBirth > minDate && u.dateOfBirth < maxDate).ToListAsync();
             }                     
 
             int count = users.Count;
             int pageSize = 10;
-            int pageStart = (id - 1) * 10;
+            int pageStart = (id - 1) * pageSize;
 
             if (pageStart + pageSize > count)
             {
@@ -60,10 +65,28 @@ namespace INO_CRM_API.Controllers
         // GET: api/Users/Pages
         [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("Pages")]
-        public async Task<ActionResult<int>> GetUsersPages()
+        public async Task<ActionResult<int>> GetUsersPages([FromQuery] string sMinDate, [FromQuery] string sMaxDate)
         {
-            int count = await _context.Users.CountAsync();
-            int pages = (count / 10) + 1;
+            int pageSize = 10;
+            int count;
+            DateTime minDate = DateTime.Parse(sMinDate);
+            DateTime maxDate = DateTime.Parse(sMaxDate);
+
+            if (minDate == null && maxDate == null)
+            {
+                count = await _context.Users.CountAsync();
+            }
+            else
+            {
+                if (minDate == null) minDate = DateTime.Parse("01-01-1900");
+                if (maxDate == null) maxDate = DateTime.Today;
+
+                count = await _context.Users
+                    .Where(u => u.dateOfBirth > minDate && u.dateOfBirth < maxDate).CountAsync();
+            }
+
+            
+            int pages = (count / pageSize) + 1;
 
 
             return pages;
