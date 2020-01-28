@@ -24,7 +24,7 @@ namespace INO_CRM_API.Controllers
             _context = context;
         }
 
-        [AllowAnonymous]
+        
         [HttpPost("token")]
         public ActionResult<string> GetToken(UserModel body)
         {
