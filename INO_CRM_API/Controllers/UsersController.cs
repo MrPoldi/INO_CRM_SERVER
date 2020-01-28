@@ -47,7 +47,7 @@ namespace INO_CRM_API.Controllers
                 if (maxDate == null) maxDate = DateTime.Today;
                 if (minDate == null) minDate = DateTime.Parse("01-01-1900");
                 users = await _context.Users
-                    .Where(u => u.dateOfBirth > minDate && u.dateOfBirth < maxDate).ToListAsync();
+                    .Where(u => !u.IsDeleted && u.dateOfBirth > minDate && u.dateOfBirth < maxDate).ToListAsync();
             }                     
 
             int count = users.Count;
@@ -74,7 +74,7 @@ namespace INO_CRM_API.Controllers
 
             if (minDate == null && maxDate == null)
             {
-                count = await _context.Users.CountAsync();
+                count = await _context.Users.Where(u => !u.IsDeleted).CountAsync();
             }
             else
             {
@@ -82,7 +82,7 @@ namespace INO_CRM_API.Controllers
                 if (maxDate == null) maxDate = DateTime.Today;
 
                 count = await _context.Users
-                    .Where(u => u.dateOfBirth > minDate && u.dateOfBirth < maxDate).CountAsync();
+                    .Where(u => !u.IsDeleted && u.dateOfBirth >= minDate && u.dateOfBirth <= maxDate).CountAsync();
             }
 
             
@@ -99,7 +99,7 @@ namespace INO_CRM_API.Controllers
         {
             var userModel = await _context.Users.FindAsync(id);
 
-            if (userModel == null)
+            if (userModel == null || userModel.IsDeleted)
             {
                 return NotFound();
             }
@@ -110,12 +110,13 @@ namespace INO_CRM_API.Controllers
 
 
         // GET: api/Users/5/roles
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("{id}/roles")]
         public async Task<ActionResult<RoleModel>> GetUserRole(int id)
         {
             //RoleModel userRole = _context.Roles.Find(_context.Users.Find(id).RoleId);            
             var userModel = await _context.Users.FindAsync(id);
-            if (userModel == null)
+            if (userModel == null || userModel.IsDeleted)
             {
                 return NotFound();
             }
@@ -133,6 +134,11 @@ namespace INO_CRM_API.Controllers
             if (id != userModel.UserId)
             {
                 return BadRequest();
+            }
+
+            if(userModel.Password == null)
+            {
+                userModel.Password = _context.Users.AsNoTracking().Where(u => u.UserId == userModel.UserId).Single().Password;
             }
 
             if(userModel.Role != null)

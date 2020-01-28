@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using INO_CRM_API.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace INO_CRM_API.Controllers
 {
@@ -21,6 +22,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Roles
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<RoleModel>>> GetRoles()
         {
@@ -28,6 +30,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Roles/5
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("{id}")]
         public async Task<ActionResult<RoleModel>> GetRoleModel(int id)
         {
@@ -44,6 +47,7 @@ namespace INO_CRM_API.Controllers
         // PUT: api/Roles/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutRoleModel(int id, RoleModel roleModel)
         {
@@ -76,6 +80,7 @@ namespace INO_CRM_API.Controllers
         // POST: api/Roles
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<RoleModel>> PostRoleModel(RoleModel roleModel)
         {
@@ -86,6 +91,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // DELETE: api/Roles/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<RoleModel>> DeleteRoleModel(int id)
         {

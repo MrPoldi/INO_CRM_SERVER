@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using INO_CRM_API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -23,14 +24,14 @@ namespace INO_CRM_API.Controllers
             _context = context;
         }
 
-
+        [AllowAnonymous]
         [HttpPost("token")]
         public ActionResult<string> GetToken(UserModel body)
         {
             UserModel user;
             try
             {
-                user = _context.Users.Where(u => u.Login == body.Login).Single();
+                user = _context.Users.Where(u => !u.IsDeleted && u.Login == body.Login).Single();
             }
             catch
             {

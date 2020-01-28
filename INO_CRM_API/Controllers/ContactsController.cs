@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using INO_CRM_API.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace INO_CRM_API.Controllers
 {
@@ -21,6 +22,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Contacts
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ContactPersonModel>>> GetContactPeople()
         {
@@ -28,21 +30,24 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/Contacts/Company/5
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("Company/{id}")]
         public async Task<ActionResult<IEnumerable<ContactPersonModel>>> GetContactPeopleForCompany(int id, [FromQuery] string searchName)
         {
-            return await _context.ContactPeople.Where(c => c.CompanyId == id 
+            return await _context.ContactPeople.Where(c => !c.IsDeleted 
+                                                      && c.CompanyId == id 
                                                       && (searchName != null ? c.LastName.StartsWith(searchName) : true))
                                                       .ToListAsync();
         }
 
         // GET: api/Contacts/5
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ContactPersonModel>> GetContactPersonModel(int id)
         {
             var contactPersonModel = await _context.ContactPeople.FindAsync(id);
 
-            if (contactPersonModel == null)
+            if (contactPersonModel == null || contactPersonModel.IsDeleted)
             {
                 return NotFound();
             }
@@ -53,6 +58,7 @@ namespace INO_CRM_API.Controllers
         // PUT: api/Contacts/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutContactPersonModel(int id, ContactPersonModel contact)
         {
@@ -89,6 +95,7 @@ namespace INO_CRM_API.Controllers
         // POST: api/Contacts
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPost]
         public async Task<ActionResult<ContactPersonModel>> PostContactPersonModel(ContactPersonModel contact)
         {
@@ -103,6 +110,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // DELETE: api/Contacts/5
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id}")]
         public async Task<ActionResult<ContactPersonModel>> DeleteContactPersonModel(int id)
         {

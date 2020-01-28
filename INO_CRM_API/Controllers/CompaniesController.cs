@@ -36,7 +36,7 @@ namespace INO_CRM_API.Controllers
         {
             var companyModel = await _context.Companies.FindAsync(id);
 
-            if (companyModel == null)
+            if (companyModel == null || companyModel.IsDeleted)
             {
                 return NotFound();
             }
@@ -52,11 +52,11 @@ namespace INO_CRM_API.Controllers
             List<CompanyModel> companies;
             if(searchBranch == null)
             {
-                companies = await _context.Companies.ToListAsync();
+                companies = await _context.Companies.Where(c => !c.IsDeleted).ToListAsync();
             }
             else
             {
-                companies = await _context.Companies.Where(c => c.Branch.Name.StartsWith(searchBranch)).ToListAsync();
+                companies = await _context.Companies.Where(c => !c.IsDeleted && c.Branch.Name.StartsWith(searchBranch)).ToListAsync();
             }
 
             int count = companies.Count;
@@ -80,11 +80,11 @@ namespace INO_CRM_API.Controllers
             int count;
             if (searchBranch == null)
             {
-                count = await _context.Companies.CountAsync();
+                count = await _context.Companies.Where(c => !c.IsDeleted).CountAsync();
             }
             else
             {
-                count = await _context.Companies.Where(c => c.Branch.Name.StartsWith(searchBranch)).CountAsync();
+                count = await _context.Companies.Where(c => !c.IsDeleted && c.Branch.Name.StartsWith(searchBranch)).CountAsync();
             }
             
 

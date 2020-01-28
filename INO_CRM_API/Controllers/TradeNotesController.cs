@@ -22,6 +22,7 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/TradeNotes
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TradeNoteModel>>> GetTradeNotes()
         {
@@ -29,19 +30,21 @@ namespace INO_CRM_API.Controllers
         }
 
         // GET: api/TradeNotes/Company/5
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("Company/{id}")]
         public async Task<ActionResult<IEnumerable<TradeNoteModel>>> GetTradeNotesForCompany(int id)
         {
-            return await _context.TradeNotes.Where(n => n.CompanyId == id).ToListAsync();
+            return await _context.TradeNotes.Where(n => !n.IsDeleted && n.CompanyId == id).ToListAsync();
         }
 
         // GET: api/TradeNotes/5
+        [Authorize(Roles = "Admin,Moderator,User")]
         [HttpGet("{id}")]
         public async Task<ActionResult<TradeNoteModel>> GetTradeNoteModel(int id)
         {
             var tradeNoteModel = await _context.TradeNotes.FindAsync(id);
 
-            if (tradeNoteModel == null)
+            if (tradeNoteModel == null || tradeNoteModel.IsDeleted)
             {
                 return NotFound();
             }
@@ -52,6 +55,7 @@ namespace INO_CRM_API.Controllers
         // PUT: api/TradeNotes/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
+        [Authorize(Roles = "Admin,Moderator")]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutTradeNoteModel(int id, TradeNoteModel tradeNoteModel)
         {
